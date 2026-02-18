@@ -52,7 +52,8 @@ EDIT_HTML = """
 </style>
 </head>
 <body>
-<h1>{{ filename }}（全{{ pages }}ページ）</h1>
+<h1>PDF最低限編集ツール</h1>
+<h2>{{ filename }}（全{{ pages }}ページ）</h2>
 
 <!-- ダウンロードボタン（クリック後にサーバー上のファイル削除を通知） -->
 <button onclick="location.href='/download/{{ fid }}';
