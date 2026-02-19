@@ -179,7 +179,7 @@ def upload():
 
     # 掃除後のファイル数をログに記録（残留ファイルの監視用）
     file_count = len(os.listdir(UPLOAD_DIR))
-    app.logger.info(f"[uploads] 残存ファイル数（掃除後）: {file_count}")
+    print(f"[uploads] 残存ファイル数（掃除後）: {file_count}", flush=True)
 
     f = request.files.get("pdf")
     if not f or not f.filename.lower().endswith(".pdf"):
