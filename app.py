@@ -6,6 +6,7 @@ PDF最低限編集Webアプリ
 
 import json
 import os
+import time
 import uuid
 import fitz  # PyMuPDF
 from flask import Flask, request, redirect, url_for, send_file, render_template_string, after_this_request
@@ -158,9 +159,28 @@ def index():
     return render_template_string(INDEX_HTML)
 
 
+def _cleanup_old_files(max_age_hours: int = 1) -> None:
+    """指定時間以上前の一時ファイル（PDF・JSON）をまとめて削除する"""
+    threshold = time.time() - max_age_hours * 3600
+    for filename in os.listdir(UPLOAD_DIR):
+        filepath = os.path.join(UPLOAD_DIR, filename)
+        if os.path.getmtime(filepath) < threshold:
+            try:
+                os.remove(filepath)
+            except OSError:
+                pass
+
+
 @app.route("/upload", methods=["POST"])
 def upload():
     """PDFファイルを受け取り、一時保存して編集画面へリダイレクト"""
+    # アップロードのたびに古い一時ファイルを掃除する
+    _cleanup_old_files(max_age_hours=1)
+
+    # 掃除後のファイル数をログに記録（残留ファイルの監視用）
+    file_count = len(os.listdir(UPLOAD_DIR))
+    app.logger.info(f"[uploads] 残存ファイル数（掃除後）: {file_count}")
+
     f = request.files.get("pdf")
     if not f or not f.filename.lower().endswith(".pdf"):
         return "PDFファイルを選択してください", 400
